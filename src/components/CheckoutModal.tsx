@@ -44,18 +44,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [address, setAddress] = useState('House 18, Road 4, Dhanmondi R/A, Dhaka-1205');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash' | 'nagad' | 'card'>('cod');
   const [rxFileAttached, setRxFileAttached] = useState(false);
+  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const hasRxMedicines = cartItems.some(i => i.medicine.isPrescriptionRequired);
 
   const handleConfirmOrder = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
     if (!name.trim()) {
-      alert('Please enter your full name');
+      setFormError('Please enter your full name');
       return;
     }
     if (!phone.trim()) {
-      alert('Please provide a contact phone number');
+      setFormError('Please provide a contact phone number');
       return;
     }
 
@@ -299,6 +301,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </span>
             </div>
           </div>
+
+          {formError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{formError}</span>
+            </div>
+          )}
 
           {/* Submit Order CTA */}
           <div className="pt-2 flex items-center justify-between">

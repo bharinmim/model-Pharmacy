@@ -13,11 +13,13 @@ import {
 interface TrustFooterProps {
   siteName: string;
   hotline: string;
+  disclaimer?: string;
 }
 
 export const TrustFooter: React.FC<TrustFooterProps> = ({
   siteName,
-  hotline
+  hotline,
+  disclaimer = "Licensed by Directorate General of Drug Administration (DGDA), Ministry of Health & Family Welfare, People's Republic of Bangladesh."
 }) => {
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800">
@@ -126,7 +128,7 @@ export const TrustFooter: React.FC<TrustFooterProps> = ({
             Regulatory & Contact
           </h5>
           <p className="text-slate-400 leading-relaxed mb-3">
-            Licensed by Directorate General of Drug Administration (DGDA), Ministry of Health & Family Welfare, People's Republic of Bangladesh.
+            {disclaimer}
           </p>
           <div className="space-y-1 text-slate-300">
             <div>Hotline: <strong className="text-white font-mono">{hotline}</strong></div>

@@ -88,3 +88,39 @@ export interface PlacedOrder {
   createdAt: string;
   hasPrescriptionItems: boolean;
 }
+
+export interface Coupon {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minOrder: number;
+  description: string;
+  isActive: boolean;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  pass: string;
+  role: 'Super Admin' | 'Senior Pharmacist' | 'Inventory Manager' | 'Dispatch Officer';
+  registrationId?: string;
+  createdAt: string;
+}
+
+export interface SiteSettings {
+  siteName: string;
+  hotline: string;
+  coverage: string;
+  heroBadge: string;
+  heroHeadline: string;
+  heroSubheadline: string;
+  heroImageUrl?: string;
+  announcementNotice: string;
+  isAnnouncementActive: boolean;
+  standardDeliveryFee: number;
+  expressDeliveryFee: number;
+  freeDeliveryThreshold: number;
+  pharmacistOnDuty: string;
+  footerDisclaimer: string;
+}

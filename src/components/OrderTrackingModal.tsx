@@ -23,7 +23,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   isOpen,
   onClose,
   recentOrders,
-  hotline = '0179970910'
+  hotline = '01799703910'
 }) => {
   if (!isOpen) return null;
 

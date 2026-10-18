@@ -179,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2.5 group text-left cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-sm font-extrabold text-lg tracking-tight group-hover:bg-emerald-800 transition-colors">
-              <span className="font-mono">MP</span>
+              <span className="font-mono">BM</span>
             </div>
             <div>
               <div className="text-xl font-extrabold tracking-tight text-slate-900 leading-tight">

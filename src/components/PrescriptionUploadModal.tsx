@@ -40,6 +40,8 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
 
+  const [formError, setFormError] = useState('');
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -50,12 +52,13 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
     if (!patientName.trim()) {
-      alert('Please enter patient name');
+      setFormError('Please enter patient name');
       return;
     }
     if (!patientPhone.trim()) {
-      alert('Please enter a valid phone number');
+      setFormError('Please enter a valid phone number');
       return;
     }
 
@@ -302,6 +305,13 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
               </label>
               <Truck className="w-5 h-5 text-emerald-700 shrink-0" />
             </div>
+
+            {formError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{formError}</span>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div className="pt-2 flex items-center justify-end gap-3">
