@@ -1,0 +1,6 @@
+{
+  "name": "ePharma Bangladesh - Online Pharmacy & Medicines",
+  "description": "Bangladesh's trusted digital healthcare and online pharmacy platform. Browse genuine medicines by brand, generic, and manufacturer, compare substitutes, and upload prescriptions for express delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
