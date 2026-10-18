@@ -41,11 +41,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   deliveryMethod,
   onChangeDeliveryMethod
 }) => {
-  if (!isOpen) return null;
-
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState(false);
+
+  if (!isOpen) return null;
 
   // Compute pricing
   const subtotal = cartItems.reduce((acc, item) => {

@@ -14,6 +14,7 @@ import { MEDICINES_DATABASE, POPULAR_LOCATIONS, MEDICINE_CATEGORIES } from './da
 import { Medicine, CartItem, UnitType, PlacedOrder, PrescriptionOrder, Coupon, SiteSettings, AdminUser } from './types/pharmacy';
 import { Pill, Sparkles, Filter, RotateCcw, AlertCircle, CheckCircle2, ShieldCheck, Lock, Megaphone } from 'lucide-react';
 import rxSampleImg from './assets/images/prescription_desk_stethoscope_1792297165282.jpg';
+import { syncDocToFirestore, fetchDocFromFirestore } from './firebase/config';
 
 // Default Fallback Configurations for Bangladesh Storefront
 const DEFAULT_SITE_SETTINGS: SiteSettings = {
@@ -280,41 +281,89 @@ export default function App() {
     return DEFAULT_ORDERS;
   });
 
-  // Auto-sync state changes to localStorage so Admin edits survive page refresh
+  // Load data from Firestore on initial mount if available
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFromFirebase() {
+      try {
+        const remoteSettings = await fetchDocFromFirestore<SiteSettings>('settings', 'main');
+        if (remoteSettings && isMounted) {
+          setSiteSettings(prev => ({ ...prev, ...remoteSettings }));
+        }
+
+        const remoteInventory = await fetchDocFromFirestore<{ list: Medicine[] }>('inventory', 'medicines');
+        if (remoteInventory?.list && isMounted) {
+          setMedicines(remoteInventory.list);
+        }
+
+        const remoteOrders = await fetchDocFromFirestore<{ list: PlacedOrder[] }>('orders', 'all_orders');
+        if (remoteOrders?.list && isMounted) {
+          setRecentOrders(remoteOrders.list);
+        }
+
+        const remotePrescriptions = await fetchDocFromFirestore<{ list: PrescriptionOrder[] }>('prescriptions', 'all_prescriptions');
+        if (remotePrescriptions?.list && isMounted) {
+          setPrescriptions(remotePrescriptions.list);
+        }
+
+        const remoteCoupons = await fetchDocFromFirestore<{ list: Coupon[] }>('coupons', 'all_coupons');
+        if (remoteCoupons?.list && isMounted) {
+          setCoupons(remoteCoupons.list);
+        }
+
+        const remoteAdmins = await fetchDocFromFirestore<{ list: AdminUser[] }>('admin', 'users');
+        if (remoteAdmins?.list && isMounted) {
+          setAdminUsers(remoteAdmins.list);
+        }
+      } catch (err) {
+        console.warn('Initial Firestore fetch fallback to local:', err);
+      }
+    }
+    loadFromFirebase();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Auto-sync state changes to localStorage and Firestore so changes persist everywhere
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_settings', JSON.stringify(siteSettings));
     } catch (e) {}
+    syncDocToFirestore('settings', 'main', siteSettings);
   }, [siteSettings]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_admins', JSON.stringify(adminUsers));
     } catch (e) {}
+    syncDocToFirestore('admin', 'users', { list: adminUsers });
   }, [adminUsers]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_medicines', JSON.stringify(medicines));
     } catch (e) {}
+    syncDocToFirestore('inventory', 'medicines', { list: medicines });
   }, [medicines]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_coupons', JSON.stringify(coupons));
     } catch (e) {}
+    syncDocToFirestore('coupons', 'all_coupons', { list: coupons });
   }, [coupons]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_orders', JSON.stringify(recentOrders));
     } catch (e) {}
+    syncDocToFirestore('orders', 'all_orders', { list: recentOrders });
   }, [recentOrders]);
 
   useEffect(() => {
     try {
       localStorage.setItem('bd_model_prescriptions', JSON.stringify(prescriptions));
     } catch (e) {}
+    syncDocToFirestore('prescriptions', 'all_prescriptions', { list: prescriptions });
   }, [prescriptions]);
 
   // Factory reset everything back to original defaults
@@ -831,85 +880,97 @@ export default function App() {
       {/* Modals & Slide-out Panels */}
       
       {/* 1. Admin Panel Modal */}
-      <AdminPanel
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        isLoggedIn={isAdminLoggedIn}
-        currentAdminUser={currentAdminUser}
-        adminUsers={adminUsers}
-        onLogin={handleAdminLogin}
-        onRegisterAdmin={handleRegisterNewAdmin}
-        onDeleteAdminUser={handleDeleteAdminUser}
-        onLogout={handleAdminLogout}
-        medicines={medicines}
-        onAddMedicine={handleAddMedicine}
-        onUpdateMedicine={handleUpdateMedicine}
-        onDeleteMedicine={handleDeleteMedicine}
-        onQuickRestockMedicine={handleQuickRestock}
-        orders={recentOrders}
-        onUpdateOrderStatus={handleUpdateOrderStatus}
-        onDeleteOrder={handleDeleteOrder}
-        prescriptions={prescriptions}
-        onUpdatePrescriptionStatus={handleUpdatePrescriptionStatus}
-        onConvertPrescriptionToOrder={handleConvertPrescriptionToOrder}
-        coupons={coupons}
-        onAddCoupon={handleAddCoupon}
-        onToggleCoupon={handleToggleCoupon}
-        onDeleteCoupon={handleDeleteCoupon}
-        siteSettings={siteSettings}
-        onUpdateSettings={setSiteSettings}
-      />
+      {isAdminOpen && (
+        <AdminPanel
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+          isLoggedIn={isAdminLoggedIn}
+          currentAdminUser={currentAdminUser}
+          adminUsers={adminUsers}
+          onLogin={handleAdminLogin}
+          onRegisterAdmin={handleRegisterNewAdmin}
+          onDeleteAdminUser={handleDeleteAdminUser}
+          onLogout={handleAdminLogout}
+          medicines={medicines}
+          onAddMedicine={handleAddMedicine}
+          onUpdateMedicine={handleUpdateMedicine}
+          onDeleteMedicine={handleDeleteMedicine}
+          onQuickRestockMedicine={handleQuickRestock}
+          orders={recentOrders}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
+          onDeleteOrder={handleDeleteOrder}
+          prescriptions={prescriptions}
+          onUpdatePrescriptionStatus={handleUpdatePrescriptionStatus}
+          onConvertPrescriptionToOrder={handleConvertPrescriptionToOrder}
+          coupons={coupons}
+          onAddCoupon={handleAddCoupon}
+          onToggleCoupon={handleToggleCoupon}
+          onDeleteCoupon={handleDeleteCoupon}
+          siteSettings={siteSettings}
+          onUpdateSettings={setSiteSettings}
+        />
+      )}
 
       {/* 2. Medicine PDP Detail Modal with Substitutes Comparison */}
-      <MedicineDetailModal
-        medicine={selectedMedicineModal}
-        onClose={() => setSelectedMedicineModal(null)}
-        onAddToCart={handleAddToCart}
-        onSelectSubstitute={(sub) => setSelectedMedicineModal(sub)}
-      />
+      {Boolean(selectedMedicineModal) && (
+        <MedicineDetailModal
+          medicine={selectedMedicineModal}
+          onClose={() => setSelectedMedicineModal(null)}
+          onAddToCart={handleAddToCart}
+          onSelectSubstitute={(sub) => setSelectedMedicineModal(sub)}
+        />
+      )}
 
       {/* 3. Upload Prescription Modal */}
-      <PrescriptionUploadModal
-        isOpen={isUploadRxOpen}
-        onClose={() => setIsUploadRxOpen(false)}
-        onSubmitPrescription={handlePrescriptionSubmitted}
-      />
+      {isUploadRxOpen && (
+        <PrescriptionUploadModal
+          isOpen={isUploadRxOpen}
+          onClose={() => setIsUploadRxOpen(false)}
+          onSubmitPrescription={handlePrescriptionSubmitted}
+        />
+      )}
 
       {/* 4. Shopping Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={handleUpdateCartQuantity}
-        onUpdateUnit={handleUpdateCartUnit}
-        onRemoveItem={handleRemoveCartItem}
-        onProceedToCheckout={() => setIsCheckoutOpen(true)}
-        appliedCoupon={appliedCoupon}
-        onApplyCoupon={handleApplyCoupon}
-        deliveryMethod={deliveryMethod}
-        onChangeDeliveryMethod={setDeliveryMethod}
-      />
+      {isCartOpen && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          cartItems={cartItems}
+          onUpdateQuantity={handleUpdateCartQuantity}
+          onUpdateUnit={handleUpdateCartUnit}
+          onRemoveItem={handleRemoveCartItem}
+          onProceedToCheckout={() => setIsCheckoutOpen(true)}
+          appliedCoupon={appliedCoupon}
+          onApplyCoupon={handleApplyCoupon}
+          deliveryMethod={deliveryMethod}
+          onChangeDeliveryMethod={setDeliveryMethod}
+        />
+      )}
 
       {/* 5. Complete Checkout Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        cartItems={cartItems}
-        subtotal={cartSubtotal}
-        discount={discountAmount}
-        deliveryFee={deliveryFee}
-        total={grandTotal}
-        deliveryMethod={deliveryMethod}
-        onOrderPlaced={handleOrderPlaced}
-      />
+      {isCheckoutOpen && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          cartItems={cartItems}
+          subtotal={cartSubtotal}
+          discount={discountAmount}
+          deliveryFee={deliveryFee}
+          total={grandTotal}
+          deliveryMethod={deliveryMethod}
+          onOrderPlaced={handleOrderPlaced}
+        />
+      )}
 
       {/* 6. Live Order Tracking Modal */}
-      <OrderTrackingModal
-        isOpen={isTrackingOpen}
-        onClose={() => setIsTrackingOpen(false)}
-        recentOrders={recentOrders}
-        hotline={siteSettings.hotline}
-      />
+      {isTrackingOpen && (
+        <OrderTrackingModal
+          isOpen={isTrackingOpen}
+          onClose={() => setIsTrackingOpen(false)}
+          recentOrders={recentOrders}
+          hotline={siteSettings.hotline}
+        />
+      )}
 
     </div>
   );

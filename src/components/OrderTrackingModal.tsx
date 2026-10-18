@@ -25,10 +25,10 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   recentOrders,
   hotline = '01799703910'
 }) => {
-  if (!isOpen) return null;
-
   const [searchOrderId, setSearchOrderId] = useState(recentOrders[0]?.id || 'EPH-842910');
   const [activeOrder, setActiveOrder] = useState<PlacedOrder | null>(recentOrders[0] || null);
+
+  if (!isOpen) return null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

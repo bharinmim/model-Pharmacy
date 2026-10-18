@@ -27,8 +27,6 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
   onClose,
   onSubmitPrescription
 }) => {
-  if (!isOpen) return null;
-
   const [patientName, setPatientName] = useState('');
   const [patientPhone, setPatientPhone] = useState('01712-345678');
   const [area, setArea] = useState(POPULAR_LOCATIONS[0]);
@@ -39,8 +37,9 @@ export const PrescriptionUploadModal: React.FC<PrescriptionUploadModalProps> = (
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
-
   const [formError, setFormError] = useState('');
+
+  if (!isOpen) return null;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

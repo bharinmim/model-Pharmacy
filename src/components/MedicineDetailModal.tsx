@@ -30,12 +30,12 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
   onAddToCart,
   onSelectSubstitute
 }) => {
-  if (!medicine) return null;
-
   const [activeTab, setActiveTab] = useState<'clinical' | 'substitutes' | 'dosage'>('clinical');
   const [selectedUnit, setSelectedUnit] = useState<UnitType>('strip');
   const [quantity, setQuantity] = useState<number>(1);
   const [isAddedFeedback, setIsAddedFeedback] = useState<boolean>(false);
+
+  if (!medicine) return null;
 
   // Retrieve substitute medicines
   const substitutes = MEDICINES_DATABASE.filter(m => medicine.substituteIds.includes(m.id));

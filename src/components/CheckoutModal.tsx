@@ -36,8 +36,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   deliveryMethod,
   onOrderPlaced
 }) => {
-  if (!isOpen) return null;
-
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('01712-345678');
   const [area, setArea] = useState(POPULAR_LOCATIONS[0]);
@@ -46,6 +44,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [rxFileAttached, setRxFileAttached] = useState(false);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen) return null;
 
   const hasRxMedicines = cartItems.some(i => i.medicine.isPrescriptionRequired);
 

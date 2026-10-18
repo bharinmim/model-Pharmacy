@@ -102,8 +102,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   siteSettings,
   onUpdateSettings
 }) => {
-  if (!isOpen) return null;
-
   // Login vs Register View mode for non-authenticated screen
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
@@ -207,6 +205,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setTempPharmacist(siteSettings.pharmacistOnDuty || '');
     setTempFooterDisclaimer(siteSettings.footerDisclaimer || '');
   }, [siteSettings]);
+
+  if (!isOpen) return null;
 
   // Handle Login submission
   const handleLoginSubmit = (e: React.FormEvent) => {
